@@ -8,12 +8,45 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UITableViewController {
 
+    var allWords = [String]()
+    var useWords = [String]()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+
+        if let startWordURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
+            if let startWords = try? String(contentsOf: startWordURL) {
+                allWords = startWords.components(separatedBy: "\n")
+            }
+        }
+        
+        if allWords.isEmpty {
+            allWords = ["silkWorm"]
+        }
+        
+        startGame()
     }
+    
+    func startGame() {
+        title = allWords.randomElement()
+        useWords.removeAll(keepingCapacity: true)
+        tableView.reloadData()
+    }
+    
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Word", for: indexPath)
+        cell.textLabel?.text = useWords[indexPath.row]
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return useWords.count
+    }
+    
 
 
 }
