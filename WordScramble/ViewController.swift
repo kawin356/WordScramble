@@ -31,10 +31,8 @@ class ViewController: UITableViewController {
             guard let answer = ac?.textFields?[0].text else { return }
             self?.submit(answer)
         }
-        
         ac.addAction(submitAction)
         present(ac, animated: true)
-        
     }
     
     func loadWord() {
@@ -51,19 +49,14 @@ class ViewController: UITableViewController {
     
     func submit(_ answer: String) {
         let lowerAnswer = answer.lowercased()
-        let errorTitle: String
-        let errorMessage: String
-        
         
         check: if isPossible(word: lowerAnswer) {
             guard isOriginal(word: lowerAnswer) else {
-                errorTitle = "Word used already"
-                errorMessage = "Be more original!"
+                showErrorMessage(errorState: .isOriginal, title: nil)
                 break check
             }
             guard isReal(word: lowerAnswer) else {
-                errorTitle = "Word not recognised"
-                errorMessage = "You can't just make them up, you know!"
+                showErrorMessage(errorState: .isReal, title: nil)
                 break check
             }
             
@@ -72,11 +65,30 @@ class ViewController: UITableViewController {
             tableView.insertRows(at: [indexPath], with: .automatic)
             return
         } else {
+            showErrorMessage(errorState: .isPossible, title: title)
+        }
+    }
+    
+    enum ErrorHandling {
+        case isPossible, isOriginal, isReal
+    }
+    
+    func showErrorMessage(errorState: ErrorHandling, title: String?) {
+        let errorTitle: String
+        let errorMessage: String
+        
+        switch errorState {
+        case .isPossible:
             guard let title = title?.lowercased() else { return }
             errorTitle = "Word not possible"
             errorMessage = "You can't spell that word from \(title)"
+        case .isOriginal:
+            errorTitle = "Word used already"
+            errorMessage = "Be more original!"
+        case .isReal:
+            errorTitle = "Word not recognised"
+            errorMessage = "You can't just make them up, you know!"
         }
-        
         let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: "OK", style: .default))
         present(ac, animated: true)
